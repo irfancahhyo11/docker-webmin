@@ -13,12 +13,8 @@ RUN wget https://github.com/webmin/webmin/releases/download/2.402/webmin-2.402.t
     cd .. && \
     rm -rf webmin-2.402 webmin-2.402.tar.gz
 
-# Change PASSWORD to your password
-
 RUN echo "root:PASSWORD" | chpasswd
-
-# port
 
 EXPOSE 10000
 
-CMD ["/bin/sh", "-c", "/usr/local/webmin/start && tail -f /dev/null"]
+CMD ["/bin/sh", "-c", "systemctl start webmin && tail -f /dev/null"]
