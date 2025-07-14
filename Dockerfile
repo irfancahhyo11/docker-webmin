@@ -1,23 +1,17 @@
 FROM archlinux/archlinux:latest
 
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm base-devel git wget perl openssl sudo
+    pacman -S --noconfirm wget perl perl-net-ssleay openssl tar gzip expect net-tools
 
-RUN useradd -m -G wheel -s /bin/bash builder && \
-    echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-USER builder
-WORKDIR /home/builder
-
-RUN git clone https://aur.archlinux.org/yay.git && \
-    cd yay && \
-    makepkg -si --noconfirm
-
-RUN yay -S --noconfirm webmin
-
-USER root
-
-RUN sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
+RUN wget https://github.com/webmin/webmin/releases/download/2.402/webmin-2.402.tar.gz && \
+    tar xzf webmin-2.402.tar.gz && \
+    cd webmin-2.402 && \
+    expect -c "spawn ./setup.sh /usr/local/webmin; \
+               expect \"Use SSL*\"; send \"n\r\"; \
+               expect \"Start Webmin*\"; send \"y\r\"; \
+               expect eof" && \
+    cd .. && \
+    rm -rf webmin-2.402 webmin-2.402.tar.gz
 
 # Change PASSWORD to your password
 
@@ -27,4 +21,4 @@ RUN echo "root:PASSWORD" | chpasswd
 
 EXPOSE 10000
 
-CMD ["/bin/sh", "-c", "systemctl start webmin && tail -f /dev/null"]
+CMD ["/bin/sh", "-c", "/usr/local/webmin/start && tail -f /dev/null"]
