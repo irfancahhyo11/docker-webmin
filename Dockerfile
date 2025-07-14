@@ -1,5 +1,5 @@
 #distro
-FROM almalinux:10
+FROM fedora:latest
 
 RUN dnf -y update && \
     dnf -y install wget perl perl-Net-SSLeay openssl && \
