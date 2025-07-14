@@ -1,6 +1,5 @@
 #distro
 FROM fedora:latest
-
 RUN dnf -y update && \
     dnf -y install wget perl perl-Net-SSLeay openssl && \
     wget https://download.webmin.com/developers-key.asc -O /etc/pki/rpm-gpg/RPM-GPG-KEY-webmin-developers && \
@@ -12,7 +11,6 @@ RUN dnf -y update && \
     echo "gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-webmin-developers" >> /etc/yum.repos.d/webmin.repo && \
     dnf -y install webmin && \
     yum install net-tools
-    dnf clean all
 
 RUN sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
 
