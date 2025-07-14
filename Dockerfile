@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM debian:latest
 #RUN echo "deb http://download.webmin.com/download/repository trusty contrib \n\
 #deb http://webmin.mirror.somersettechsolutions.co.uk/repository trusty contrib" > /etc/apt/sources.list.d/webmin.list \
 #RUN apt-get update && apt-get install -y wget
