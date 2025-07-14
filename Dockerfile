@@ -21,7 +21,7 @@ ADD https://github.com/irfancahhyo11/docker-webmin/releases/download/binaries/be
 
 RUN echo "root:PASSWORD" | chpasswd
 
-ADD ./run.sh /run.sh
+#ADD ./run.sh /run.sh
 RUN chmod +x /run.sh
 RUN chmod +x /run_bedrockinstall.sh
 RUN chmod +x /bedrock-installer.sh
