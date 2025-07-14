@@ -13,8 +13,7 @@ RUN echo "deb [signed-by=/usr/share/keyrings/webmin.gpg] http://download.webmin.
 
 RUN apt-get update && \
     apt-get install -y webmin && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean
 
 RUN sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
 
