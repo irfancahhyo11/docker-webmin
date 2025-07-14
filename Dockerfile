@@ -1,35 +1,27 @@
 FROM alpine:latest
 
 RUN apk update && apk upgrade && \
-    apk add --no-cache wget curl sudo git vim nano bash
+    apk add --no-cache wget perl perl-net-ssleay openssl bash tar gzip net-tools
 
-RUN adduser -D user && \
-    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-RUN apk add --no-cache apache2 mariadb mariadb-client php php-apache2 php-mysqli && \
-    mkdir -p /run/apache2 && \
-    chown -R apache:apache /var/www && \
-    /etc/init.d/mariadb setup && \
-    rc-service mariadb start && \
-    mysqladmin -u root password 'PASSWORD' && \
-    rc-service apache2 start
+RUN wget https://download.webmin.com/developers-key.asc -O /tmp/webmin-key.asc
 
 RUN wget http://prdownloads.sourceforge.net/webadmin/webmin-2.105.tar.gz && \
     tar xzf webmin-2.105.tar.gz && \
     cd webmin-2.105 && \
     ./setup.sh /usr/local/webmin --force && \
-    cd .. && rm -rf webmin-2.105 webmin-2.105.tar.gz && \
-    /usr/local/webmin/start
+    cd .. && \
+    rm -rf webmin-2.105 webmin-2.105.tar.gz
 
-RUN apk add --no-cache openssh && \
-    ssh-keygen -A && \
-    mkdir -p /var/run/sshd
+RUN apk add --no-cache net-tools
 
-# change PASSWORD to your password
+RUN sed -i 's/ssl=1/ssl=0/g' /usr/local/webmin/miniserv.conf
+
+# Change PASSWORD to your password
+
 RUN echo "root:PASSWORD" | chpasswd
 
-ADD ./run.sh /run.sh
-RUN chmod +x /run.sh
+# Port
 
+EXPOSE 10000
 
-CMD ["/run.sh"]
+CMD ["/bin/sh", "-c", "/usr/local/webmin/start && tail -f /dev/null"]
