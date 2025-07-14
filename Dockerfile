@@ -1,27 +1,26 @@
-#distro
-FROM almalinux:10
-
-RUN dnf -y update && \
-    dnf -y install wget perl perl-Net-SSLeay openssl && \
-    wget https://download.webmin.com/developers-key.asc -O /etc/pki/rpm-gpg/RPM-GPG-KEY-webmin-developers && \
-    echo "[Webmin-newkey]" > /etc/yum.repos.d/webmin.repo && \
-    echo "name=Webmin Distribution Neutral (new key)" >> /etc/yum.repos.d/webmin.repo && \
-    echo "baseurl=https://download.webmin.com/download/newkey/yum" >> /etc/yum.repos.d/webmin.repo && \
-    echo "enabled=1" >> /etc/yum.repos.d/webmin.repo && \
-    echo "gpgcheck=1" >> /etc/yum.repos.d/webmin.repo && \
-    echo "gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-webmin-developers" >> /etc/yum.repos.d/webmin.repo && \
-    dnf -y install webmin && \
-    yum install net-tools
-    dnf clean all
-
-RUN sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
+FROM ubuntu:latest
+#RUN echo "deb http://download.webmin.com/download/repository trusty contrib \n\
+#deb http://webmin.mirror.somersettechsolutions.co.uk/repository trusty contrib" > /etc/apt/sources.list.d/webmin.list \
+#RUN apt-get update && apt-get install -y wget
+ADD https://raw.githubusercontent.com/dockerimages/ubuntu-installer/master/prepare-base.sh /prepare-base.sh
+ADD https://raw.githubusercontent.com/dockerimages/ubuntu-installer/master/lampp.sh /lampp.sh
+ADD https://raw.githubusercontent.com/dockerimages/ubuntu-installer/master/webmin.sh /webmin.sh
+RUN chmod +x *.sh
+RUN /prepare-base.sh
+RUN cat /etc/apt/apt.conf.d/01buildconfig
+RUN apt-get update
+RUN /lampp.sh
+RUN /webmin.sh
+RUN apt-get update && apt-get install -y openssh-server
+RUN mkdir /var/run/sshd
 
 # change PASSWORD to your password
 
 RUN echo "root:PASSWORD" | chpasswd
 
-# webmin port
+ADD ./run.sh /run.sh
+RUN chmod +x /run.sh
+CMD ["/run.sh"]
 
-EXPOSE 10000
 
-CMD ["/bin/sh", "-c", "/usr/libexec/webmin/webmin-init start && tail -f /dev/null"]
+# thanks Frank Lemanschik
