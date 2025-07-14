@@ -1,26 +1,25 @@
 FROM alpine:latest
 
 RUN apk update && apk upgrade && \
-    apk add --no-cache wget perl perl-net-ssleay openssl bash tar gzip net-tools
-
-RUN wget https://download.webmin.com/developers-key.asc -O /tmp/webmin-key.asc
+    apk add --no-cache wget perl perl-net-ssleay openssl tar gzip expect
 
 RUN wget https://github.com/webmin/webmin/releases/download/2.402/webmin-2.402.pkg.gz && \
     tar xzf webmin-2.105.tar.gz && \
     cd webmin-2.105 && \
-    ./setup.sh /usr/local/webmin --force && \
+    expect -c "spawn ./setup.sh /usr/local/webmin; \
+               expect \"Use SSL*\"; send \"n\r\"; \
+               expect \"Start Webmin*\"; send \"y\r\"; \
+               expect eof" && \
     cd .. && \
     rm -rf webmin-2.105 webmin-2.105.tar.gz
 
 RUN apk add --no-cache net-tools
 
-RUN sed -i 's/ssl=1/ssl=0/g' /usr/local/webmin/miniserv.conf
-
-# Change PASSWORD to your password
+# password
 
 RUN echo "root:PASSWORD" | chpasswd
 
-# Port
+# port
 
 EXPOSE 10000
 
