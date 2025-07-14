@@ -16,11 +16,11 @@ RUN sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
 
 
 
-#RUN passwd root
 
 #port
 EXPOSE 10000
 
 CMD ["/bin/sh", "-c", "/usr/libexec/webmin/webmin-init start && tail -f /dev/null"]
 
-#passwd root
+
+RUN echo "your_secure_password" | passwd --stdin YOUR PASSWORD!!!!!
