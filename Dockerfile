@@ -1,5 +1,5 @@
 #distro
-FROM almalinux:10
+FROM rockylinux/rockylinux:10
 
 RUN dnf -y update && \
     dnf -y install wget perl perl-Net-SSLeay openssl && \
