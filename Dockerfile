@@ -11,6 +11,7 @@ RUN dnf -y update && \
     echo "gpgcheck=1" >> /etc/yum.repos.d/webmin.repo && \
     echo "gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-webmin-developers" >> /etc/yum.repos.d/webmin.repo && \
     dnf -y install webmin && \
+    yum install net-tools
     dnf clean all
 
 RUN sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
