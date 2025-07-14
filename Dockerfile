@@ -1,35 +1,30 @@
 FROM archlinux/archlinux:latest
 
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm base-devel wget curl sudo git
+    pacman -S --noconfirm base-devel git wget perl openssl sudo
 
-RUN pacman -S --noconfirm vim nano && \
-    useradd -m -s /bin/bash user && \
-    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN useradd -m -G wheel -s /bin/bash builder && \
+    echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
-RUN curl -o xampp-installer.run https://www.apachefriends.org/xampp-files/8.2.12/xampp-linux-x64-8.2.12-0-installer.run && \
-    chmod +x xampp-installer.run && \
-    ./xampp-installer.run --mode unattended && \
-    rm xampp-installer.run && \
-    /opt/lampp/lampp start
+USER builder
+WORKDIR /home/builder
 
-RUN echo "[webmin]" >> /etc/pacman.conf && \
-    echo "Server = https://download.webmin.com/download/repository" >> /etc/pacman.conf && \
-    pacman-key --init && \
-    wget http://www.webmin.com/jcameron-key.asc && \
-    pacman-key --add jcameron-key.asc && \
-    pacman-key --lsign-key 11F63C51 && \
-    pacman -Syu --noconfirm webmin && \
-    /etc/webmin/start
+RUN git clone https://aur.archlinux.org/yay.git && \
+    cd yay && \
+    makepkg -si --noconfirm
 
-RUN pacman -S --noconfirm openssh && \
-    ssh-keygen -A && \
-    mkdir /var/run/sshd
+RUN yay -S --noconfirm webmin
 
-# change PASSWORD to your password
+USER root
+
+RUN sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
+
+# Change PASSWORD to your password
+
 RUN echo "root:PASSWORD" | chpasswd
 
-ADD ./run.sh /run.sh
-RUN chmod +x /run.sh
+# port
 
-CMD ["/run.sh"]
+EXPOSE 10000
+
+CMD ["/bin/sh", "-c", "systemctl start webmin && tail -f /dev/null"]
