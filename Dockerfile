@@ -1,27 +1,35 @@
-#distro
-FROM almalinux:10
+FROM archlinux/archlinux:latest
 
-RUN dnf -y update && \
-    dnf -y install wget perl perl-Net-SSLeay openssl && \
-    wget https://download.webmin.com/developers-key.asc -O /etc/pki/rpm-gpg/RPM-GPG-KEY-webmin-developers && \
-    echo "[Webmin-newkey]" > /etc/yum.repos.d/webmin.repo && \
-    echo "name=Webmin Distribution Neutral (new key)" >> /etc/yum.repos.d/webmin.repo && \
-    echo "baseurl=https://download.webmin.com/download/newkey/yum" >> /etc/yum.repos.d/webmin.repo && \
-    echo "enabled=1" >> /etc/yum.repos.d/webmin.repo && \
-    echo "gpgcheck=1" >> /etc/yum.repos.d/webmin.repo && \
-    echo "gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-webmin-developers" >> /etc/yum.repos.d/webmin.repo && \
-    dnf -y install webmin && \
-    yum install net-tools
-    dnf clean all
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm base-devel wget curl sudo git
 
-RUN sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
+RUN pacman -S --noconfirm vim nano && \
+    useradd -m -s /bin/bash user && \
+    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+RUN curl -o xampp-installer.run https://www.apachefriends.org/xampp-files/8.2.12/xampp-linux-x64-8.2.12-0-installer.run && \
+    chmod +x xampp-installer.run && \
+    ./xampp-installer.run --mode unattended && \
+    rm xampp-installer.run && \
+    /opt/lampp/lampp start
+
+RUN echo "[webmin]" >> /etc/pacman.conf && \
+    echo "Server = https://download.webmin.com/download/repository" >> /etc/pacman.conf && \
+    pacman-key --init && \
+    wget http://www.webmin.com/jcameron-key.asc && \
+    pacman-key --add jcameron-key.asc && \
+    pacman-key --lsign-key 11F63C51 && \
+    pacman -Syu --noconfirm webmin && \
+    /etc/webmin/start
+
+RUN pacman -S --noconfirm openssh && \
+    ssh-keygen -A && \
+    mkdir /var/run/sshd
 
 # change PASSWORD to your password
-
 RUN echo "root:PASSWORD" | chpasswd
 
-# webmin port
+ADD ./run.sh /run.sh
+RUN chmod +x /run.sh
 
-EXPOSE 10000
-
-CMD ["/bin/sh", "-c", "/usr/libexec/webmin/webmin-init start && tail -f /dev/null"]
+CMD ["/run.sh"]
