@@ -5,7 +5,7 @@ RUN apk update && apk upgrade && \
 
 RUN wget https://download.webmin.com/developers-key.asc -O /tmp/webmin-key.asc
 
-RUN wget http://prdownloads.sourceforge.net/webadmin/webmin-2.105.tar.gz && \
+RUN wget https://github.com/webmin/webmin/releases/download/2.402/webmin-2.402.pkg.gz && \
     tar xzf webmin-2.105.tar.gz && \
     cd webmin-2.105 && \
     ./setup.sh /usr/local/webmin --force && \
