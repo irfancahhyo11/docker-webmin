@@ -14,16 +14,14 @@ RUN /webmin.sh
 RUN apt-get update && apt-get install -y openssh-server
 RUN mkdir /var/run/sshd
 
-ADD https://github.com/irfancahhyo11/docker-webmin/releases/download/binaries/run_bedrockinstall.sh
-ADD https://github.com/irfancahhyo11/docker-webmin/releases/download/binaries/bedrock-installer.sh
+ADD https://github.com/irfancahhyo11/docker-webmin/releases/download/binaries/run_bedrockinstall.sh /run_bedrockinstall.sh
+ADD https://github.com/irfancahhyo11/docker-webmin/releases/download/binaries/bedrock-installer.sh /bedrock-installer.sh
 
 # change PASSWORD to your password
 
 RUN echo "root:PASSWORD" | chpasswd
 
 ADD ./run.sh /run.sh
-ADD ./run_bedrockinstall.sh /run_bedrockinstall.sh
-ADD ./bedrock-installer.sh /bedrock-installer.sh
 RUN chmod +x /run.sh
 RUN chmod +x /run_bedrockinstall.sh
 RUN chmod +x /bedrock-installer.sh
