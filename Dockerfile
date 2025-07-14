@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 RUN apk update && apk upgrade && \
-    apk add --no-cache wget perl perl-net-ssleay openssl tar gzip expect
+    apk add --no-cache wget perl perl-net-ssleay openssl tar gzip expect net-tools openrc
 
 RUN wget https://github.com/webmin/webmin/releases/download/2.402/webmin-2.402.tar.gz && \
     tar xzf webmin-2.402.tar.gz && \
@@ -13,14 +13,8 @@ RUN wget https://github.com/webmin/webmin/releases/download/2.402/webmin-2.402.t
     cd .. && \
     rm -rf webmin-2.402 webmin-2.402.tar.gz
 
-RUN apk add --no-cache net-tools
-
-# password
-
 RUN echo "root:PASSWORD" | chpasswd
-
-# port
 
 EXPOSE 10000
 
-CMD ["/bin/sh", "-c", "/usr/local/webmin/start && tail -f /dev/null"]
+CMD ["/bin/sh", "-c", "rc-service webmin start && tail -f /dev/null"]
