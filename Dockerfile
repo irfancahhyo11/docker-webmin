@@ -1,8 +1,8 @@
 #distro
 FROM oraclelinux:10
 
-RUN yum -y update && \
-    yum -y install wget perl perl-Net-SSLeay openssl && \
+RUN dnf -y update && \
+    dnf -y install wget perl perl-Net-SSLeay openssl && \
     wget https://download.webmin.com/developers-key.asc -O /etc/pki/rpm-gpg/RPM-GPG-KEY-webmin-developers && \
     echo "[Webmin-newkey]" > /etc/yum.repos.d/webmin.repo && \
     echo "name=Webmin Distribution Neutral (new key)" >> /etc/yum.repos.d/webmin.repo && \
@@ -10,14 +10,14 @@ RUN yum -y update && \
     echo "enabled=1" >> /etc/yum.repos.d/webmin.repo && \
     echo "gpgcheck=1" >> /etc/yum.repos.d/webmin.repo && \
     echo "gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-webmin-developers" >> /etc/yum.repos.d/webmin.repo && \
-    yum -y install webmin && \
-    yum install net-tools
+    dnf -y install webmin && \
+    dnf install net-tools
 
 RUN sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
 
 # change PASSWORD to your password
 
-RUN echo "root:1" | chpasswd
+RUN echo "root:PASSWORD" | chpasswd
 
 # webmin port
 
